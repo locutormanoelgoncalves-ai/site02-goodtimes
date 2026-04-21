@@ -80,6 +80,10 @@
                     <span class="bg-pink-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">2</span>
                     Anexar Comprovante de pagamento
                 </h3>
+                 <!-- Dados Bancários (Pequeno e sem negrito) -->
+                <div class="ml-10 mb-6 text-sm font-normal text-slate-400 leading-relaxed">
+                    A confirmação da compra do ingresso somente acontece após o envio do comprovante de pagamento.
+                </div>
 
                 <form id="purchase-form" class="space-y-4">
                     <input required type="text" id="nome" placeholder="Nome Completo" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white">
@@ -95,7 +99,7 @@
                     </div>
 
                     <button type="submit" id="submit-btn" disabled class="w-full py-5 rounded-2xl font-black text-lg bg-gradient-to-r from-indigo-600 to-pink-600 hover:brightness-110 transition-all flex items-center justify-center gap-3 shadow-xl mt-4">
-                        <span id="btn-text">Finalizar Ingresso</span>
+                        <span id="btn-text">Finalizar compra</span>
                         <i data-lucide="loader-2" id="btn-loader" class="w-6 h-6 animate-spin hidden"></i>
                     </button>
                 </form>
