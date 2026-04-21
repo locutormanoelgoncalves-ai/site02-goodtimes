@@ -17,9 +17,10 @@
 
     <script>
         // CONFIGURAÇÃO DO WEBHOOK
-        // ⚠️ TESTE: use 'webhook-test'. PRODUÇÃO: mude para 'webhook' e ative o workflow no n8n.
+        // ⚠️ IMPORTANTE: No n8n, o método do Webhook DEVE ser POST
         const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook-test/ingressos"; 
         const TOTAL_TICKETS = 50;
+        const CHAVE_PIX = "pix@manoelgoncalves.com.br";
     </script>
 
     <div class="relative h-64 md:h-80 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center overflow-hidden text-center">
@@ -28,24 +29,24 @@
             <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 italic text-white drop-shadow-2xl">
                 GOODTIMES <span class="text-pink-400">PARTY</span>
             </h1>
-            <p class="text-xs md:text-sm font-bold text-purple-200 uppercase tracking-[0.3em] opacity-80">O melhor dos anos 80 em 2026!</p>
+            <p class="text-xs md:text-sm font-bold text-purple-200 uppercase tracking-[0.3em] opacity-80 italic">A melhor vibe dos anos 80!</p>
         </div>
     </div>
 
     <main class="max-w-xl mx-auto px-4 -mt-16 relative z-20">
-        <!-- Contador -->
+        <!-- Contador de Ingressos -->
         <div class="glass rounded-3xl p-6 shadow-2xl border border-slate-800 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
                     <div class="bg-indigo-500/20 p-3 rounded-2xl text-indigo-400"><i data-lucide="ticket" class="w-6 h-6"></i></div>
                     <div>
-                        <h2 class="font-bold text-lg text-white">Ingressos Online</h2>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade</p>
+                        <h2 class="font-bold text-lg text-white">Disponibilidade</h2>
+                        <p class="text-slate-400 text-xs uppercase tracking-wider italic">Garanta o seu antes que esgote</p>
                     </div>
                 </div>
                 <div class="text-right">
                     <span id="remaining-count" class="text-4xl font-black text-indigo-400 leading-none">--</span>
-                    <p id="remaining-label" class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Disponíveis</p>
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Ingressos</p>
                 </div>
             </div>
             <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
@@ -53,11 +54,47 @@
             </div>
         </div>
 
-        <!-- Form -->
+        <!-- Passo 1: Pagamento PIX -->
+        <div class="glass rounded-3xl p-8 shadow-2xl border border-slate-800 mb-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <i data-lucide="banknote" class="w-16 h-16"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-4 flex items-center gap-3 text-white">
+                <span class="bg-indigo-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs">1</span>
+                Pagamento via PIX
+            </h3>
+            <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Valor Único</p>
+                        <p class="text-3xl font-black text-emerald-400">R$ 10,00</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Na Hora</p>
+                        <p class="text-sm font-bold text-slate-400 line-through">R$ 20,00</p>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-slate-800 space-y-3">
+                    <p class="text-xs text-slate-400 leading-relaxed italic text-center">Copie a chave abaixo e realize o pagamento no seu banco:</p>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-3 rounded-xl">
+                            <code class="flex-1 text-sm text-indigo-300 font-mono truncate" id="pix-key-display">carregando...</code>
+                            <button onclick="copyPix()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-bold whitespace-nowrap">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Copiar
+                            </button>
+                        </div>
+                        <div id="copy-feedback" class="hidden text-[10px] text-emerald-400 font-bold text-center animate-bounce">Chave copiada!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Passo 2: Dados e Comprovante -->
         <div id="form-container" class="glass rounded-3xl p-8 shadow-2xl border border-slate-800">
-            <h3 class="text-2xl font-bold mb-8 flex items-center gap-3 text-white">
-                <div class="w-2 h-8 bg-pink-500 rounded-full"></div>
-                Compre seu ingresso
+            <h3 class="text-xl font-bold mb-8 flex items-center gap-3 text-white">
+                <span class="bg-pink-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs">2</span>
+                Enviar Comprovante
             </h3>
 
             <div id="error-message" class="hidden mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3 text-red-400 text-sm">
@@ -66,87 +103,136 @@
             </div>
 
             <form id="purchase-form" class="space-y-5">
-                <input required type="text" id="nome" placeholder="Nome Completo" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white placeholder:text-slate-700">
-                <input required type="tel" id="whatsapp" placeholder="WhatsApp (00) 00000-0000" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white placeholder:text-slate-700">
-                <input required type="email" id="email" placeholder="Seu E-mail" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white placeholder:text-slate-700">
+                <div class="space-y-4">
+                    <input required type="text" id="nome" placeholder="Nome Completo" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white placeholder:text-slate-700">
+                    <input required type="tel" id="whatsapp" placeholder="WhatsApp (00) 00000-0000" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white placeholder:text-slate-700">
+                    <input required type="email" id="email" placeholder="Seu E-mail" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white placeholder:text-slate-700">
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-black text-slate-500 ml-1 tracking-widest">Anexar Comprovante (Imagem/PDF)</label>
+                    <div class="relative group cursor-pointer">
+                        <input required type="file" id="comprovante" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="w-full bg-slate-950 border-2 border-dashed border-slate-800 rounded-2xl py-8 px-4 text-center group-hover:border-indigo-500 transition-all flex flex-col items-center gap-2">
+                            <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
+                            <span id="file-label" class="text-sm text-slate-500 font-medium">Clique aqui para selecionar</span>
+                            <p class="text-[10px] text-slate-600">Formato JPG, PNG ou PDF</p>
+                        </div>
+                    </div>
+                </div>
 
                 <button type="submit" id="submit-btn" class="w-full py-5 rounded-2xl font-black text-lg bg-gradient-to-r from-indigo-600 to-pink-600 hover:brightness-110 transition-all flex items-center justify-center gap-3 shadow-xl">
-                    <span id="btn-text">Garantir meu lugar</span>
+                    <span id="btn-text">Finalizar e Receber Ingresso</span>
                     <i data-lucide="loader-2" id="btn-loader" class="w-6 h-6 animate-spin hidden"></i>
                 </button>
             </form>
         </div>
 
-        <!-- Sucesso -->
+        <!-- Tela de Sucesso -->
         <div id="success-container" class="hidden glass rounded-3xl p-8 text-center border border-emerald-500/30">
-            <div class="bg-emerald-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30">
-                <i data-lucide="check" class="w-10 h-10 text-white"></i>
+            <div class="bg-emerald-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
+                <i data-lucide="check" class="w-12 h-12 text-white"></i>
             </div>
-            <h2 class="text-2xl font-bold text-emerald-400 mb-2">Reserva Confirmada!</h2>
-            <div class="bg-white text-slate-900 rounded-2xl p-6 shadow-2xl my-6">
-                <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Número do Ingresso</p>
+            <h2 class="text-3xl font-bold text-emerald-400 mb-2">Pedido Recebido!</h2>
+            <p class="text-slate-300 mb-8 text-sm leading-relaxed">
+                Excelente! Os dados e o comprovante foram enviados.<br/>
+                O nosso sistema está a validar o seu pagamento.
+            </p>
+            <div class="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl mb-8 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-pink-500"></div>
+                <p class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mb-2">Seu Ingresso</p>
                 <p id="success-ticket" class="text-6xl font-black text-indigo-600 tracking-tighter">#---</p>
             </div>
-            <button onclick="location.reload()" class="text-slate-400 underline font-bold text-sm">Comprar outro</button>
-        </div>
-
-        <div class="mt-8 bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4">
-            <div class="bg-emerald-500/10 p-3 rounded-2xl text-emerald-400"><i data-lucide="banknote" class="w-6 h-6"></i></div>
-            <div class="flex-1 flex justify-between items-center text-sm">
-                <div>
-                    <p class="text-[10px] uppercase font-black text-slate-500">Antecipado</p>
-                    <p class="text-xl font-black text-emerald-400">R$ 10,00</p>
-                </div>
-                <div class="text-right border-l border-slate-800 pl-4">
-                    <p class="text-[10px] uppercase font-black text-slate-500">Na Hora</p>
-                    <p class="font-bold text-slate-400">R$ 20,00</p>
-                </div>
-            </div>
+            <p class="text-xs text-slate-500 italic mb-6">"Em instantes você receberá a confirmação no WhatsApp!"</p>
+            <button onclick="location.reload()" class="text-slate-400 hover:text-white transition-colors py-2 px-4 border border-slate-800 rounded-xl">
+                Comprar outro ingresso
+            </button>
         </div>
     </main>
 
     <script>
         lucide.createIcons();
-        const countDisplay = document.getElementById('remaining-count');
-        const progressBar = document.getElementById('progress-bar');
-        const submitBtn = document.getElementById('submit-btn');
+        document.getElementById('pix-key-display').innerText = CHAVE_PIX;
+
+        // Função para copiar PIX
+        function copyPix() {
+            const temp = document.createElement('input');
+            temp.value = CHAVE_PIX;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            
+            const feedback = document.getElementById('copy-feedback');
+            feedback.classList.remove('hidden');
+            setTimeout(() => feedback.classList.add('hidden'), 2000);
+        }
+
+        const fileInput = document.getElementById('comprovante');
+        const fileLabel = document.getElementById('file-label');
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileLabel.innerText = e.target.files[0].name;
+                fileLabel.classList.replace('text-slate-500', 'text-indigo-400');
+            }
+        });
+
+        // Conversor de ficheiro
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
 
         async function updateStatus() {
             try {
                 const response = await fetch(`${API_WEBHOOK_URL}?action=status&t=${Date.now()}`);
-                const text = await response.text();
-                if (!text) return;
-                const data = JSON.parse(text);
+                const data = await response.json();
                 if(data.remaining !== undefined) {
                     const rem = Math.max(0, parseInt(data.remaining));
-                    countDisplay.innerText = rem;
-                    progressBar.style.width = `${(rem / TOTAL_TICKETS) * 100}%`;
+                    document.getElementById('remaining-count').innerText = rem;
+                    document.getElementById('progress-bar').style.width = `${(rem / TOTAL_TICKETS) * 100}%`;
                 }
-            } catch (err) {
-                console.log("Erro ao atualizar contador.");
-            }
+            } catch (err) {}
         }
 
         document.getElementById('purchase-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
             const btnLoader = document.getElementById('btn-loader');
             const btnText = document.getElementById('btn-text');
             const errBox = document.getElementById('error-message');
 
             submitBtn.disabled = true;
             btnLoader.classList.remove('hidden');
-            btnText.innerText = "Processando...";
+            btnText.innerText = "Processando comprovante...";
             errBox.classList.add('hidden');
 
             try {
-                const params = new URLSearchParams({ 
-                    action: 'buy', 
-                    nome: document.getElementById('nome').value, 
-                    whatsapp: document.getElementById('whatsapp').value, 
-                    email: document.getElementById('email').value 
-                });
+                const file = fileInput.files[0];
+                if (file.size > 5 * 1024 * 1024) throw new Error("O arquivo é muito grande (máx 5MB).");
                 
-                const response = await fetch(`${API_WEBHOOK_URL}?${params.toString()}`);
+                const base64File = await fileToBase64(file);
+
+                const payload = {
+                    action: 'buy',
+                    nome: document.getElementById('nome').value,
+                    whatsapp: document.getElementById('whatsapp').value,
+                    email: document.getElementById('email').value,
+                    comprovante: base64File
+                };
+
+                // Envio via POST
+                const response = await fetch(API_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -154,14 +240,14 @@
                     document.getElementById('success-container').classList.remove('hidden');
                     document.getElementById('success-ticket').innerText = '#' + String(data.ticketNumber).padStart(3, '0');
                 } else {
-                    throw new Error(data.error || "Erro ao processar ingresso.");
+                    throw new Error(data.error || "Erro no processamento.");
                 }
             } catch (err) {
-                document.getElementById('error-text').innerText = "Erro de conexão. Verifique se o n8n está no modo 'Listen' ou 'Active'.";
+                document.getElementById('error-text').innerText = "Erro: " + err.message;
                 errBox.classList.remove('hidden');
             } finally {
                 btnLoader.classList.add('hidden');
-                btnText.innerText = "Garantir meu lugar";
+                btnText.innerText = "Finalizar e Receber Ingresso";
                 submitBtn.disabled = false;
             }
         });
