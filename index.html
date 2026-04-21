@@ -19,7 +19,8 @@
 
     <script>
         // CONFIGURAÇÃO DO N8N
-        const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook/ingressos"; 
+        // Enquanto estiver testando no n8n, use "webhook-test". Quando ativar o workflow, mude para "webhook".
+        const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook-test/ingressos"; 
         const TOTAL_TICKETS = 50;
         
         // Trava de Data: 02 de Maio de 2026, às 23:59:59
@@ -49,7 +50,7 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-lg">Ingressos Online</h2>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade atual</p>
+                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade em tempo real</p>
                     </div>
                 </div>
                 <div class="text-right">
@@ -63,7 +64,7 @@
             </div>
         </div>
 
-        <!-- Formulário -->
+        <!-- Formulário de Compra -->
         <div id="form-container" class="bg-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-800 backdrop-blur-xl bg-opacity-95 block">
             <h3 class="text-2xl font-bold mb-8 flex items-center gap-3">
                 <div class="w-2 h-8 bg-pink-500 rounded-full"></div>
@@ -107,7 +108,7 @@
             </form>
         </div>
 
-        <!-- Sucesso -->
+        <!-- Tela de Sucesso -->
         <div id="success-container" class="hidden bg-emerald-900/10 border border-emerald-500/30 rounded-3xl p-8 text-center shadow-[0_0_40px_rgba(16,185,129,0.1)]">
             <div class="bg-emerald-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
                 <i data-lucide="check-circle-2" class="w-12 h-12 text-white"></i>
@@ -120,17 +121,17 @@
             
             <div class="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl mb-8 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-pink-500"></div>
-                <p class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mb-2">Ingresso Número</p>
-                <p id="success-ticket" class="text-6xl font-black tracking-tighter text-indigo-600 mb-6">#000</p>
+                <p class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mb-2 text-center">Ingresso Número</p>
+                <p id="success-ticket" class="text-6xl font-black tracking-tighter text-indigo-600 mb-6 text-center">#000</p>
                 
                 <div class="pt-6 border-t border-slate-100 flex flex-col gap-2 text-sm text-left">
                     <div class="flex justify-between items-center">
                         <span class="text-slate-400">Evento:</span>
-                        <span class="font-bold uppercase italic">Festa Goodtimes</span>
+                        <span class="font-bold uppercase italic text-right">Festa Goodtimes</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-slate-400">Acesso:</span>
-                        <span class="font-bold uppercase">Entrada Individual</span>
+                        <span class="font-bold uppercase text-right">Entrada Individual</span>
                     </div>
                 </div>
             </div>
@@ -140,39 +141,39 @@
             </button>
         </div>
 
-        <!-- Infos de Local e Preço -->
+        <!-- Grade de Infos e Preços -->
         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4">
-                <div class="bg-indigo-500/10 p-3 rounded-2xl text-indigo-400">
-                    <i data-lucide="calendar" class="w-6 h-6"></i>
+            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 hover:border-indigo-500/30 transition-colors">
+                <div class="bg-indigo-500/10 p-3 rounded-2xl">
+                    <i data-lucide="calendar" class="w-6 h-6 text-indigo-400"></i>
                 </div>
                 <div>
-                    <p class="text-[10px] uppercase font-black text-slate-500">Data do Evento</p>
+                    <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Data do Evento</p>
                     <p class="text-sm font-bold">8 de Maio</p>
                 </div>
             </div>
-            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4">
-                <div class="bg-pink-500/10 p-3 rounded-2xl text-pink-400">
-                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 hover:border-pink-500/30 transition-colors">
+                <div class="bg-pink-500/10 p-3 rounded-2xl">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-pink-400"></i>
                 </div>
                 <div>
-                    <p class="text-[10px] uppercase font-black text-slate-500">Localização</p>
+                    <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Localização</p>
                     <p class="text-sm font-bold">Remenbeer</p>
                 </div>
             </div>
             
-            <!-- Preços -->
-            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 md:col-span-2">
-                <div class="bg-emerald-500/10 p-3 rounded-2xl text-emerald-400">
-                    <i data-lucide="banknote" class="w-6 h-6"></i>
+            <!-- Bloco de Preços -->
+            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 hover:border-emerald-500/30 transition-colors md:col-span-2">
+                <div class="bg-emerald-500/10 p-3 rounded-2xl">
+                    <i data-lucide="banknote" class="w-6 h-6 text-emerald-400"></i>
                 </div>
                 <div class="flex-1 flex justify-between items-center">
                     <div>
-                        <p class="text-[10px] uppercase font-black text-slate-500">Antecipado</p>
+                        <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Antecipado (Site)</p>
                         <p class="text-xl font-black text-emerald-400">R$ 10,00</p>
                     </div>
                     <div class="text-right border-l border-slate-800 pl-4">
-                        <p class="text-[10px] uppercase font-black text-slate-500">Na Hora</p>
+                        <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Na Hora</p>
                         <p class="text-sm font-bold text-slate-400">R$ 20,00</p>
                     </div>
                 </div>
@@ -215,11 +216,18 @@
                     if (ticketsRemaining <= 0 || isSalesClosed) {
                         btnText.innerText = isSalesClosed ? "Vendas Encerradas" : "Ingressos Esgotados";
                         submitBtn.classList.replace('from-indigo-600', 'bg-slate-800');
+                        submitBtn.classList.remove('hover:brightness-110', 'hover:scale-[1.02]', 'active:scale-95');
+                        submitBtn.classList.add('cursor-not-allowed', 'text-slate-500');
                         submitBtn.disabled = true;
+
+                        if (isSalesClosed && ticketsRemaining > 0) {
+                            countDisplay.innerText = "--";
+                            document.getElementById('remaining-label').innerText = "ENCERRADO";
+                        }
                     }
                 }
             } catch (err) {
-                console.log("Erro de conexão com o n8n.");
+                console.log("Aguardando ativação do workflow no n8n.");
             }
         }
 
@@ -254,10 +262,10 @@
                     showSuccess(nome, data.ticketNumber);
                     updateStatus();
                 } else {
-                    showError("Erro inesperado. Tente novamente.");
+                    showError("Ocorreu um erro inesperado. Tente novamente.");
                 }
             } catch (err) {
-                showError("Erro ao enviar dados para o n8n.");
+                showError("Erro de comunicação com o servidor n8n.");
             } finally {
                 isBuying = false;
                 btnText.innerText = "Garantir meu lugar";
