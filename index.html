@@ -17,18 +17,18 @@
 
     <script>
         // CONFIGURAÇÃO DO WEBHOOK
+        // ⚠️ TESTE: use 'webhook-test'. PRODUÇÃO: mude para 'webhook' e ative o fluxo.
         const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook-test/ingressos"; 
         const TOTAL_TICKETS = 50;
     </script>
 
-    <!-- Hero -->
     <div class="relative h-64 md:h-80 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center overflow-hidden">
         <div class="absolute inset-0 bg-cubes"></div>
         <div class="relative z-10 text-center px-4">
-            <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 italic drop-shadow-2xl text-white">
+            <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 italic text-white">
                 GOODTIMES <span class="text-pink-400">PARTY</span>
             </h1>
-            <p class="text-lg md:text-xl font-medium text-purple-200 uppercase tracking-widest text-center">A Noite Mais Esperada</p>
+            <p class="text-lg md:text-xl font-medium text-purple-200 uppercase tracking-widest text-center">Uma Noite com o Melhor dos Anos 80!</p>
         </div>
     </div>
 
@@ -37,12 +37,10 @@
         <div class="glass rounded-3xl p-6 shadow-2xl border border-slate-800 mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
-                    <div class="bg-indigo-500/20 p-3 rounded-2xl text-indigo-400">
-                        <i data-lucide="ticket" class="w-6 h-6"></i>
-                    </div>
+                    <div class="bg-indigo-500/20 p-3 rounded-2xl text-indigo-400"><i data-lucide="ticket" class="w-6 h-6"></i></div>
                     <div>
                         <h2 class="font-bold text-lg">Ingressos Online</h2>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade em tempo real</p>
+                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade</p>
                     </div>
                 </div>
                 <div class="text-right">
@@ -50,13 +48,12 @@
                     <p id="remaining-label" class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Disponíveis</p>
                 </div>
             </div>
-            
             <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
-                <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-pink-500 transition-all duration-1000" style="width: 100%"></div>
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-pink-500 transition-all duration-1000" style="width: 0%"></div>
             </div>
         </div>
 
-        <!-- Formulário -->
+        <!-- Form -->
         <div id="form-container" class="glass rounded-3xl p-8 shadow-2xl border border-slate-800">
             <h3 class="text-2xl font-bold mb-8 flex items-center gap-3 text-white">
                 <div class="w-2 h-8 bg-pink-500 rounded-full"></div>
@@ -88,12 +85,12 @@
             <h2 class="text-2xl font-bold text-emerald-400 mb-2">Reserva Confirmada!</h2>
             <div class="bg-white text-slate-900 rounded-2xl p-6 shadow-2xl my-6">
                 <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Número do Ingresso</p>
-                <p id="success-ticket" class="text-6xl font-black text-indigo-600 tracking-tighter">#001</p>
+                <p id="success-ticket" class="text-6xl font-black text-indigo-600 tracking-tighter">---</p>
             </div>
             <button onclick="location.reload()" class="text-slate-400 underline font-bold text-sm">Comprar outro</button>
         </div>
 
-        <!-- Info Preços -->
+        <!-- Preços -->
         <div class="mt-8 bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4">
             <div class="bg-emerald-500/10 p-3 rounded-2xl text-emerald-400"><i data-lucide="banknote" class="w-6 h-6"></i></div>
             <div class="flex-1 flex justify-between items-center text-sm md:text-base">
@@ -119,28 +116,23 @@
             try {
                 const response = await fetch(`${API_WEBHOOK_URL}?action=status&t=${Date.now()}`);
                 const data = await response.json();
-                
                 if(data.remaining !== undefined) {
                     const rem = parseInt(data.remaining);
                     countDisplay.innerText = rem;
-                    const perc = (rem / TOTAL_TICKETS) * 100;
-                    progressBar.style.width = `${perc}%`;
+                    progressBar.style.width = `${(rem / TOTAL_TICKETS) * 100}%`;
                 }
             } catch (err) {
-                console.log("A carregar contador...");
-                updateStatus(); // Tenta novamente se falhar
+                console.log("Erro ao carregar status.");
             }
         }
 
         document.getElementById('purchase-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btnLoader = document.getElementById('btn-loader');
-            const btnText = document.getElementById('btn-text');
             const errBox = document.getElementById('error-message');
 
             submitBtn.disabled = true;
             btnLoader.classList.remove('hidden');
-            btnText.innerText = "Processando...";
             errBox.classList.add('hidden');
 
             try {
@@ -155,16 +147,16 @@
                 if (data.success) {
                     document.getElementById('form-container').classList.add('hidden');
                     document.getElementById('success-container').classList.remove('hidden');
+                    // Aqui forçamos a exibição do número que veio do n8n
                     document.getElementById('success-ticket').innerText = '#' + String(data.ticketNumber).padStart(3, '0');
                 } else {
-                    throw new Error(data.error || "Erro ao processar compra.");
+                    throw new Error(data.error || "Erro na compra.");
                 }
             } catch (err) {
-                document.getElementById('error-text').innerText = "Erro: " + err.message + " (Certifique-se de que o n8n está em modo 'Listen for test event')";
+                document.getElementById('error-text').innerText = "Erro: " + err.message;
                 errBox.classList.remove('hidden');
             } finally {
                 btnLoader.classList.add('hidden');
-                btnText.innerText = "Garantir meu lugar";
                 submitBtn.disabled = false;
             }
         });
