@@ -11,13 +11,22 @@
         body { font-family: 'Inter', sans-serif; }
         .bg-cubes { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
         .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); }
+        
+        /* Estilo para o botão desativado */
+        #submit-btn:disabled {
+            background: #1e293b;
+            color: #475569;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen pb-12 selection:bg-pink-500/30">
 
     <script>
         // CONFIGURAÇÃO DO WEBHOOK
-        // ⚠️ IMPORTANTE: No n8n, o método do Webhook DEVE ser POST
         const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook-test/ingressos"; 
         const TOTAL_TICKETS = 50;
         const CHAVE_PIX = "pix@manoelgoncalves.com.br";
@@ -29,7 +38,7 @@
             <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 italic text-white drop-shadow-2xl">
                 GOODTIMES <span class="text-pink-400">PARTY</span>
             </h1>
-            <p class="text-xs md:text-sm font-bold text-purple-200 uppercase tracking-[0.3em] opacity-80 italic">A melhor vibe dos anos 80!</p>
+            <p class="text-xs md:text-sm font-bold text-purple-200 uppercase tracking-[0.3em] opacity-80 italic">O melhor dos anos 80 em 2026!</p>
         </div>
     </div>
 
@@ -60,7 +69,7 @@
                 <i data-lucide="banknote" class="w-16 h-16"></i>
             </div>
             <h3 class="text-xl font-bold mb-4 flex items-center gap-3 text-white">
-                <span class="bg-indigo-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs">1</span>
+                <span class="bg-indigo-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold tracking-tighter">1</span>
                 Pagamento via PIX
             </h3>
             <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 space-y-4">
@@ -75,9 +84,9 @@
                     </div>
                 </div>
                 
-                <div class="pt-4 border-t border-slate-800 space-y-3">
-                    <p class="text-xs text-slate-400 leading-relaxed italic text-center">Copie a chave abaixo e realize o pagamento no seu banco:</p>
-                    <div class="flex flex-col gap-2">
+                <div class="pt-4 border-t border-slate-800 space-y-3 text-center">
+                    <p class="text-xs text-slate-400 leading-relaxed italic">Copie a chave abaixo e realize o pagamento no seu banco:</p>
+                    <div class="flex flex-col gap-2 text-left">
                         <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-3 rounded-xl">
                             <code class="flex-1 text-sm text-indigo-300 font-mono truncate" id="pix-key-display">carregando...</code>
                             <button onclick="copyPix()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-bold whitespace-nowrap">
@@ -93,7 +102,7 @@
         <!-- Passo 2: Dados e Comprovante -->
         <div id="form-container" class="glass rounded-3xl p-8 shadow-2xl border border-slate-800">
             <h3 class="text-xl font-bold mb-8 flex items-center gap-3 text-white">
-                <span class="bg-pink-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs">2</span>
+                <span class="bg-pink-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold tracking-tighter">2</span>
                 Enviar Comprovante
             </h3>
 
@@ -115,13 +124,14 @@
                         <input required type="file" id="comprovante" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                         <div class="w-full bg-slate-950 border-2 border-dashed border-slate-800 rounded-2xl py-8 px-4 text-center group-hover:border-indigo-500 transition-all flex flex-col items-center gap-2">
                             <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-500 group-hover:text-indigo-400 transition-colors"></i>
-                            <span id="file-label" class="text-sm text-slate-500 font-medium">Clique aqui para selecionar</span>
-                            <p class="text-[10px] text-slate-600">Formato JPG, PNG ou PDF</p>
+                            <span id="file-label" class="text-sm text-slate-500 font-medium">Selecione o comprovante para ativar o botão</span>
+                            <p class="text-[10px] text-slate-600 italic">Necessário para finalizar a compra</p>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" id="submit-btn" class="w-full py-5 rounded-2xl font-black text-lg bg-gradient-to-r from-indigo-600 to-pink-600 hover:brightness-110 transition-all flex items-center justify-center gap-3 shadow-xl">
+                <!-- Botão inicia desativado -->
+                <button type="submit" id="submit-btn" disabled class="w-full py-5 rounded-2xl font-black text-lg bg-gradient-to-r from-indigo-600 to-pink-600 hover:brightness-110 transition-all flex items-center justify-center gap-3 shadow-xl">
                     <span id="btn-text">Finalizar e Receber Ingresso</span>
                     <i data-lucide="loader-2" id="btn-loader" class="w-6 h-6 animate-spin hidden"></i>
                 </button>
@@ -154,6 +164,10 @@
         lucide.createIcons();
         document.getElementById('pix-key-display').innerText = CHAVE_PIX;
 
+        const fileInput = document.getElementById('comprovante');
+        const fileLabel = document.getElementById('file-label');
+        const submitBtn = document.getElementById('submit-btn');
+
         // Função para copiar PIX
         function copyPix() {
             const temp = document.createElement('input');
@@ -168,17 +182,24 @@
             setTimeout(() => feedback.classList.add('hidden'), 2000);
         }
 
-        const fileInput = document.getElementById('comprovante');
-        const fileLabel = document.getElementById('file-label');
-
+        // Monitorar Upload para ativar o botão
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 fileLabel.innerText = e.target.files[0].name;
                 fileLabel.classList.replace('text-slate-500', 'text-indigo-400');
+                
+                // ATIVA O BOTÃO
+                submitBtn.disabled = false;
+            } else {
+                fileLabel.innerText = "Selecione o comprovante para ativar o botão";
+                fileLabel.classList.replace('text-indigo-400', 'text-slate-500');
+                
+                // DESATIVA O BOTÃO
+                submitBtn.disabled = true;
             }
         });
 
-        // Conversor de ficheiro
+        // Conversor de ficheiro para Base64
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -202,14 +223,13 @@
 
         document.getElementById('purchase-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const submitBtn = document.getElementById('submit-btn');
             const btnLoader = document.getElementById('btn-loader');
             const btnText = document.getElementById('btn-text');
             const errBox = document.getElementById('error-message');
 
             submitBtn.disabled = true;
             btnLoader.classList.remove('hidden');
-            btnText.innerText = "Processando comprovante...";
+            btnText.innerText = "Enviando comprovante...";
             errBox.classList.add('hidden');
 
             try {
@@ -226,7 +246,7 @@
                     comprovante: base64File
                 };
 
-                // Envio via POST
+                // Envio via POST para o n8n
                 const response = await fetch(API_WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -245,10 +265,10 @@
             } catch (err) {
                 document.getElementById('error-text').innerText = "Erro: " + err.message;
                 errBox.classList.remove('hidden');
+                submitBtn.disabled = false; // Reativa em caso de erro para o usuário tentar novamente
             } finally {
                 btnLoader.classList.add('hidden');
                 btnText.innerText = "Finalizar e Receber Ingresso";
-                submitBtn.disabled = false;
             }
         });
 
