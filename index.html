@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Festa Goodtimes - Ingressos</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -19,18 +16,14 @@
 
     <script>
         // CONFIGURAÇÃO DO N8N
-        // Enquanto estiver testando no n8n, use "webhook-test". Quando ativar o workflow, mude para "webhook".
+        // ⚠️ IMPORTANTE: Se estiver a testar, use 'webhook-test'. Se o workflow estiver ATIVO, use 'webhook'.
         const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook-test/ingressos"; 
         const TOTAL_TICKETS = 50;
-        
-        // Trava de Data: 02 de Maio de 2026, às 23:59:59
         const SALES_CUTOFF_DATE = new Date('2026-05-02T23:59:59').getTime();
     </script>
 
-    <!-- Cabeçalho (Hero) -->
     <div class="relative h-64 md:h-80 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center overflow-hidden">
         <div class="absolute inset-0 bg-cubes"></div>
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent"></div>
         <div class="relative z-10 text-center px-4">
             <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 italic drop-shadow-2xl">
                 GOODTIMES <span class="text-pink-400">PARTY</span>
@@ -40,17 +33,13 @@
     </div>
 
     <main class="max-w-xl mx-auto px-4 -mt-16 relative z-20">
-        
-        <!-- Contador de Ingressos -->
         <div class="bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-800 mb-6 backdrop-blur-xl bg-opacity-95">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
-                    <div class="bg-indigo-500/20 p-3 rounded-2xl text-indigo-400">
-                        <i data-lucide="ticket" class="w-6 h-6"></i>
-                    </div>
+                    <div class="bg-indigo-500/20 p-3 rounded-2xl text-indigo-400"><i data-lucide="ticket" class="w-6 h-6"></i></div>
                     <div>
                         <h2 class="font-bold text-lg">Ingressos Online</h2>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade em tempo real</p>
+                        <p class="text-slate-400 text-xs uppercase tracking-wider">Disponibilidade</p>
                     </div>
                 </div>
                 <div class="text-right">
@@ -58,241 +47,101 @@
                     <p id="remaining-label" class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Disponíveis</p>
                 </div>
             </div>
-            
             <div class="w-full bg-slate-800 h-4 rounded-full overflow-hidden border border-slate-700">
-                <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(99,102,241,0.5)]" style="width: 100%"></div>
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all duration-1000 ease-out" style="width: 0%"></div>
             </div>
         </div>
 
-        <!-- Formulário de Compra -->
-        <div id="form-container" class="bg-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-800 backdrop-blur-xl bg-opacity-95 block">
+        <div id="form-container" class="bg-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-800 backdrop-blur-xl bg-opacity-95">
             <h3 class="text-2xl font-bold mb-8 flex items-center gap-3">
                 <div class="w-2 h-8 bg-pink-500 rounded-full"></div>
                 Compre seu ingresso
             </h3>
 
-            <div id="error-message" class="hidden mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3 text-red-400 text-sm animate-pulse">
-                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+            <div id="error-message" class="hidden mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl flex items-start gap-3 text-red-400 text-sm">
+                <i data-lucide="alert-circle" class="w-5 h-5 mt-0.5"></i>
                 <p id="error-text"></p>
             </div>
 
             <form id="purchase-form" class="space-y-5">
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-400 ml-1">Nome Completo</label>
-                    <div class="relative group">
-                        <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors"></i>
-                        <input required type="text" id="nome" placeholder="Como você quer no ingresso?" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 pl-12 pr-4 focus:ring-0 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-700 text-white">
-                    </div>
-                </div>
+                <input required type="text" id="nome" placeholder="Nome Completo" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all">
+                <input required type="tel" id="whatsapp" placeholder="WhatsApp (00) 00000-0000" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all">
+                <input required type="email" id="email" placeholder="Seu E-mail" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all">
 
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-400 ml-1">WhatsApp</label>
-                    <div class="relative group">
-                        <i data-lucide="message-circle" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors"></i>
-                        <input required type="tel" id="whatsapp" placeholder="(00) 00000-0000" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 pl-12 pr-4 focus:ring-0 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-700 text-white">
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-400 ml-1">E-mail</label>
-                    <div class="relative group">
-                        <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors"></i>
-                        <input required type="email" id="email" placeholder="Para receber o comprovante" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 pl-12 pr-4 focus:ring-0 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-700 text-white">
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-btn" class="w-full py-5 rounded-2xl font-black text-lg mt-6 flex items-center justify-center gap-3 transition-all shadow-xl uppercase tracking-widest bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:brightness-110 hover:scale-[1.02] active:scale-95 shadow-indigo-500/20">
+                <button type="submit" id="submit-btn" class="w-full py-5 rounded-2xl font-black text-lg bg-gradient-to-r from-indigo-600 to-pink-600 hover:brightness-110 transition-all flex items-center justify-center gap-3">
                     <span id="btn-text">Garantir meu lugar</span>
                     <i data-lucide="loader-2" id="btn-loader" class="w-6 h-6 animate-spin hidden"></i>
                 </button>
             </form>
         </div>
 
-        <!-- Tela de Sucesso -->
-        <div id="success-container" class="hidden bg-emerald-900/10 border border-emerald-500/30 rounded-3xl p-8 text-center shadow-[0_0_40px_rgba(16,185,129,0.1)]">
-            <div class="bg-emerald-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
-                <i data-lucide="check-circle-2" class="w-12 h-12 text-white"></i>
+        <div id="success-container" class="hidden bg-emerald-900/10 border border-emerald-500/30 rounded-3xl p-8 text-center shadow-lg">
+            <div class="bg-emerald-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="check" class="w-10 h-10 text-white"></i></div>
+            <h2 class="text-2xl font-bold text-emerald-400 mb-2">Sucesso!</h2>
+            <div class="bg-white text-slate-900 rounded-2xl p-6 shadow-xl mb-6">
+                <p class="text-xs uppercase font-bold text-slate-400">Seu Ingresso</p>
+                <p id="success-ticket" class="text-5xl font-black text-indigo-600">#000</p>
             </div>
-            <h2 class="text-3xl font-bold text-emerald-400 mb-2">Tudo Pronto!</h2>
-            <p class="text-slate-300 mb-8">
-                Parabéns, <span id="success-name" class="font-bold text-white"></span>! <br/>
-                Seu ingresso foi reservado com sucesso.
-            </p>
-            
-            <div class="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl mb-8 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-pink-500"></div>
-                <p class="text-[10px] uppercase tracking-[0.3em] font-black text-slate-400 mb-2 text-center">Ingresso Número</p>
-                <p id="success-ticket" class="text-6xl font-black tracking-tighter text-indigo-600 mb-6 text-center">#000</p>
-                
-                <div class="pt-6 border-t border-slate-100 flex flex-col gap-2 text-sm text-left">
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Evento:</span>
-                        <span class="font-bold uppercase italic text-right">Festa Goodtimes</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-slate-400">Acesso:</span>
-                        <span class="font-bold uppercase text-right">Entrada Individual</span>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="resetForm()" class="text-slate-400 font-bold hover:text-emerald-400 transition-colors py-2 px-4 border border-slate-800 rounded-xl hover:border-emerald-500/30">
-                Comprar outro ingresso
-            </button>
-        </div>
-
-        <!-- Grade de Infos e Preços -->
-        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 hover:border-indigo-500/30 transition-colors">
-                <div class="bg-indigo-500/10 p-3 rounded-2xl">
-                    <i data-lucide="calendar" class="w-6 h-6 text-indigo-400"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Data do Evento</p>
-                    <p class="text-sm font-bold">8 de Maio</p>
-                </div>
-            </div>
-            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 hover:border-pink-500/30 transition-colors">
-                <div class="bg-pink-500/10 p-3 rounded-2xl">
-                    <i data-lucide="map-pin" class="w-6 h-6 text-pink-400"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Localização</p>
-                    <p class="text-sm font-bold">Remenbeer</p>
-                </div>
-            </div>
-            
-            <!-- Bloco de Preços -->
-            <div class="bg-slate-900/40 p-5 rounded-3xl border border-slate-800 flex items-center gap-4 hover:border-emerald-500/30 transition-colors md:col-span-2">
-                <div class="bg-emerald-500/10 p-3 rounded-2xl">
-                    <i data-lucide="banknote" class="w-6 h-6 text-emerald-400"></i>
-                </div>
-                <div class="flex-1 flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Antecipado (Site)</p>
-                        <p class="text-xl font-black text-emerald-400">R$ 10,00</p>
-                    </div>
-                    <div class="text-right border-l border-slate-800 pl-4">
-                        <p class="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Na Hora</p>
-                        <p class="text-sm font-bold text-slate-400">R$ 20,00</p>
-                    </div>
-                </div>
-            </div>
+            <button onclick="location.reload()" class="text-slate-400 underline font-bold text-sm">Comprar outro</button>
         </div>
     </main>
 
     <script>
         lucide.createIcons();
-
-        const form = document.getElementById('purchase-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnLoader = document.getElementById('btn-loader');
-        const errorMsg = document.getElementById('error-message');
-        const errorText = document.getElementById('error-text');
         const countDisplay = document.getElementById('remaining-count');
         const progressBar = document.getElementById('progress-bar');
-        const formContainer = document.getElementById('form-container');
-        const successContainer = document.getElementById('success-container');
-
-        let isBuying = false;
-        let ticketsRemaining = TOTAL_TICKETS;
+        const submitBtn = document.getElementById('submit-btn');
 
         async function updateStatus() {
             try {
-                const response = await fetch(`${API_WEBHOOK_URL}?action=status`);
+                // Adicionamos um timestamp para evitar cache do navegador
+                const response = await fetch(`${API_WEBHOOK_URL}?action=status&t=${Date.now()}`);
+                if (!response.ok) throw new Error();
                 const data = await response.json();
                 
                 if(data.remaining !== undefined) {
-                    ticketsRemaining = data.remaining;
-                    countDisplay.innerText = ticketsRemaining;
-                    
-                    const percentage = (ticketsRemaining / TOTAL_TICKETS) * 100;
-                    progressBar.style.width = `${Math.max(0, percentage)}%`;
-
-                    const now = new Date().getTime();
-                    const isSalesClosed = now > SALES_CUTOFF_DATE;
-
-                    if (ticketsRemaining <= 0 || isSalesClosed) {
-                        btnText.innerText = isSalesClosed ? "Vendas Encerradas" : "Ingressos Esgotados";
-                        submitBtn.classList.replace('from-indigo-600', 'bg-slate-800');
-                        submitBtn.classList.remove('hover:brightness-110', 'hover:scale-[1.02]', 'active:scale-95');
-                        submitBtn.classList.add('cursor-not-allowed', 'text-slate-500');
-                        submitBtn.disabled = true;
-
-                        if (isSalesClosed && ticketsRemaining > 0) {
-                            countDisplay.innerText = "--";
-                            document.getElementById('remaining-label').innerText = "ENCERRADO";
-                        }
-                    }
+                    countDisplay.innerText = data.remaining;
+                    progressBar.style.width = `${(data.remaining / TOTAL_TICKETS) * 100}%`;
                 }
             } catch (err) {
-                console.log("Aguardando ativação do workflow no n8n.");
+                console.error("Erro ao ler status");
+                countDisplay.innerText = "!!";
             }
         }
 
-        form.addEventListener('submit', async (e) => {
+        document.getElementById('purchase-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const now = new Date().getTime();
-            if (isBuying || ticketsRemaining <= 0 || now > SALES_CUTOFF_DATE) return;
-
-            isBuying = true;
-            errorMsg.classList.add('hidden');
-            btnText.innerText = "Processando...";
-            btnLoader.classList.remove('hidden');
+            document.getElementById('btn-loader').classList.remove('hidden');
+            document.getElementById('error-message').classList.add('hidden');
+            submitBtn.disabled = true;
 
             const nome = document.getElementById('nome').value;
             const whatsapp = document.getElementById('whatsapp').value;
             const email = document.getElementById('email').value;
 
             try {
-                const params = new URLSearchParams({
-                    action: 'buy',
-                    nome: nome,
-                    whatsapp: whatsapp,
-                    email: email
-                });
-
+                const params = new URLSearchParams({ action: 'buy', nome, whatsapp, email });
                 const response = await fetch(`${API_WEBHOOK_URL}?${params.toString()}`);
                 const data = await response.json();
 
                 if (data.error) {
-                    showError(data.error);
+                    document.getElementById('error-text').innerText = data.error;
+                    document.getElementById('error-message').classList.remove('hidden');
                 } else if (data.success) {
-                    showSuccess(nome, data.ticketNumber);
-                    updateStatus();
-                } else {
-                    showError("Ocorreu um erro inesperado. Tente novamente.");
+                    document.getElementById('form-container').classList.add('hidden');
+                    document.getElementById('success-container').classList.remove('hidden');
+                    document.getElementById('success-ticket').innerText = '#' + String(data.ticketNumber).padStart(3, '0');
                 }
             } catch (err) {
-                showError("Erro de comunicação com o servidor n8n.");
+                document.getElementById('error-text').innerText = "Erro de comunicação. Verifique se clicou em 'Listen for test event' no n8n.";
+                document.getElementById('error-message').classList.remove('hidden');
             } finally {
-                isBuying = false;
-                btnText.innerText = "Garantir meu lugar";
-                btnLoader.classList.add('hidden');
+                document.getElementById('btn-loader').classList.add('hidden');
+                submitBtn.disabled = false;
             }
         });
 
-        function showError(msg) {
-            errorText.innerText = msg;
-            errorMsg.classList.remove('hidden');
-        }
-
-        function showSuccess(name, number) {
-            formContainer.classList.add('hidden');
-            successContainer.classList.remove('hidden');
-            document.getElementById('success-name').innerText = name.split(' ')[0];
-            document.getElementById('success-ticket').innerText = '#' + String(number).padStart(3, '0');
-        }
-
-        function resetForm() {
-            form.reset();
-            successContainer.classList.add('hidden');
-            formContainer.classList.remove('hidden');
-        }
-
         updateStatus();
-        setInterval(updateStatus, 15000); 
     </script>
 </body>
 </html>
