@@ -1,206 +1,227 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Festa Goodtimes - Ingressos</title>
+    <title>Good Times - Festa Retrô</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .bg-cubes { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
-        .glass { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(16px); }
-        #submit-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; opacity: 0.6; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f0c29;
+            background-image: linear-gradient(to bottom right, #0f0c29, #302b63, #24243e);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, .font-retro {
+            font-family: 'Righteous', cursive;
+        }
+
+        /* Efeitos Neon */
+        .neon-text-pink {
+            color: #ff2a85;
+            text-shadow: 0 0 5px #ff2a85, 0 0 10px #ff2a85, 0 0 20px #ff2a85, 0 0 40px #ff2a85;
+        }
+
+        .neon-text-cyan {
+            color: #00e5ff;
+            text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff;
+        }
+
+        .neon-border-pink {
+            border-color: #ff2a85;
+            box-shadow: 0 0 5px #ff2a85, inset 0 0 5px #ff2a85;
+        }
+        
+        .neon-border-cyan {
+            border-color: #00e5ff;
+            box-shadow: 0 0 5px #00e5ff, inset 0 0 5px #00e5ff;
+        }
+
+        .neon-border-cyan:focus {
+            box-shadow: 0 0 15px #00e5ff, inset 0 0 10px #00e5ff;
+            outline: none;
+        }
+
+        .neon-button {
+            background-color: transparent;
+            color: #00e5ff;
+            border: 2px solid #00e5ff;
+            box-shadow: 0 0 10px #00e5ff, inset 0 0 10px #00e5ff;
+            transition: all 0.3s ease;
+        }
+
+        .neon-button:hover {
+            background-color: #00e5ff;
+            color: #000;
+            box-shadow: 0 0 20px #00e5ff, inset 0 0 10px #00e5ff;
+        }
+
+        /* Animação de background */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 42, 133, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 42, 133, 0.2) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            z-index: -1;
+            opacity: 0.3;
+            animation: moveGrid 15s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+            100% { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); }
+        }
+
+        /* Esconder barra de rolagem */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f0c29; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff2a85; 
+            border-radius: 4px;
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-12 selection:bg-pink-500/30">
+<body class="relative overflow-x-hidden flex flex-col items-center justify-center p-4 sm:p-8">
 
-    <script>
-        // ⚠️ IMPORTANTE: 
-        // 1. Webhook TESTE: termina em /webhook-test/ingressos (Só funciona com o n8n aberto no 'Listen')
-        // 2. Webhook PRODUÇÃO: termina em /webhook/ingressos (Funciona sempre, mas o Workflow deve estar ATIVO)
-        const API_WEBHOOK_URL = "https://estudio-n8n.baatq5.easypanel.host/webhook/ingressos"; 
-        const TOTAL_TICKETS = 50;
-        const CHAVE_PIX = "pix@manoelgoncalves.com.br";
-    </script>
+    <!-- Grid Retrô de Fundo -->
+    <div class="grid-bg"></div>
 
-    <div class="relative h-64 md:h-80 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center overflow-hidden text-center">
-        <div class="absolute inset-0 bg-cubes"></div>
-        <div class="relative z-10 px-4">
-            <h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-2 italic text-white">
-                GOODTIMES <span className="text-pink-400">PARTY</span>
-            </h1>
-            <p class="text-xs md:text-sm font-bold text-purple-200 uppercase tracking-[0.3em] opacity-80 italic">O melhor dos anos 80!</p>
+    <!-- Header / Hero Section -->
+    <header class="text-center mt-10 mb-12">
+        <div class="inline-block mb-4">
+            <svg class="w-16 h-16 mx-auto text-pink-500 mb-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
         </div>
-    </div>
+        <h2 class="text-2xl sm:text-3xl text-gray-300 font-retro tracking-widest uppercase mb-2">Bem-vindo à</h2>
+        <h1 class="text-6xl sm:text-8xl neon-text-pink mb-4">GOOD TIMES</h1>
+        <p class="text-xl sm:text-2xl neon-text-cyan uppercase tracking-wider">A sua Festa Retrô</p>
+    </header>
 
-    <main class="max-w-xl mx-auto px-4 -mt-16 relative z-20">
-        <!-- Contador -->
-        <div class="glass rounded-3xl p-6 shadow-2xl border border-slate-800 mb-6">
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="bg-indigo-500/20 p-3 rounded-2xl text-indigo-400"><i data-lucide="ticket" class="w-6 h-6"></i></div>
-                    <div>
-                        <h2 class="font-bold text-lg text-white">Ingressos Online</h2>
-                        <p class="text-slate-400 text-xs uppercase tracking-wider italic">Disponibilidade</p>
-                    </div>
-                </div>
-                <div class="text-right">
-                    <span id="remaining-count" class="text-4xl font-black text-indigo-400 leading-none">50</span>
-                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Livres</p>
-                </div>
-            </div>
-            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-slate-700">
-                <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-pink-500 transition-all duration-1000" style="width: 100%"></div>
-            </div>
+    <!-- Seção Principal -->
+    <main class="w-full max-w-2xl bg-black bg-opacity-60 backdrop-blur-md rounded-2xl p-6 sm:p-10 border border-gray-800 shadow-2xl relative z-10 neon-border-pink">
+        
+        <div class="text-center mb-8">
+            <h3 class="text-3xl font-retro text-white mb-3">Crie a Playlist com a gente!</h3>
+            <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                Qual música não pode faltar na nossa pista de dança? Deixe sua sugestão abaixo. Vale o nome da banda, da música ou até mesmo o link do YouTube!
+            </p>
         </div>
 
-        <!-- Formulário de Compra -->
-        <div id="form-container" class="glass rounded-3xl p-8 shadow-2xl border border-slate-800">
-            <div id="step-1">
-                 <h3 class="text-xl font-bold mb-4 flex items-center gap-3 text-white">
-                    <span class="bg-indigo-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">1</span>
-                    Pagamento via PIX
-                </h3>
-                <!-- Dados Bancários (Pequeno e sem negrito) -->
-                <div class="ml-10 mb-6 text-sm font-normal text-slate-400 leading-relaxed">
-                    Em nome de: Manoel Omar Barbosa Gonçalves <br> Banco: Nubank
-                </div>
-                <div class="bg-slate-950/50 border border-slate-800 rounded-2xl p-6 mb-8">
-                    <p class="text-3xl font-black text-emerald-400 mb-4 text-center">R$ 10,00</p>
-                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 p-3 rounded-xl">
-                        <code class="flex-1 text-sm text-indigo-300 font-mono truncate" id="pix-key">pix@manoelgoncalves.com.br</code>
-                        <button onclick="copyPix()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2 rounded-lg text-xs font-bold transition-all">Copiar</button>
-                       
-                    </div>
-                </div>
-
-                <h3 class="text-xl font-bold mb-6 flex items-center gap-3 text-white">
-                    <span class="bg-pink-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                    Anexar Comprovante de pagamento
-                </h3>
-                 <!-- Dados Bancários (Pequeno e sem negrito) -->
-                <div class="ml-10 mb-6 text-sm font-normal text-slate-400 leading-relaxed">
-                    A confirmação da compra do ingresso somente acontece após o envio do comprovante de pagamento.
-                </div>
-
-                <form id="purchase-form" class="space-y-4">
-                    <input required type="text" id="nome" placeholder="Nome Completo" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white">
-                    <!-- Campo WhatsApp com máscara dinâmica -->
-                    <input required type="tel" id="whatsapp" placeholder="WhatsApp (DDD) + Número" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white">
-                    <input required type="email" id="email" placeholder="E-mail" class="w-full bg-slate-950 border-2 border-slate-800 rounded-2xl py-4 px-6 focus:border-indigo-500 outline-none transition-all text-white">
-
-                    <div class="relative group cursor-pointer">
-                        <input required type="file" id="comprovante" accept="image/*,application/pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                        <div class="w-full bg-slate-950 border-2 border-dashed border-slate-800 rounded-2xl py-8 px-4 text-center group-hover:border-indigo-500 transition-all flex flex-col items-center gap-2">
-                            <i data-lucide="upload-cloud" id="upload-icon" class="w-8 h-8 text-slate-500 transition-colors"></i>
-                            <span id="file-label" class="text-sm text-slate-500 font-medium tracking-tight">Selecione o ficheiro</span>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="submit-btn" disabled class="w-full py-5 rounded-2xl font-black text-lg bg-gradient-to-r from-indigo-600 to-pink-600 hover:brightness-110 transition-all flex items-center justify-center gap-3 shadow-xl mt-4">
-                        <span id="btn-text">Finalizar compra</span>
-                        <i data-lucide="loader-2" id="btn-loader" class="w-6 h-6 animate-spin hidden"></i>
-                    </button>
-                </form>
+        <!-- Formulário -->
+        <form id="playlistForm" class="space-y-6">
+            
+            <!-- Campo Nome -->
+            <div class="flex flex-col">
+                <label for="nome" class="text-sm text-gray-300 mb-2 uppercase tracking-wider font-semibold">Seu Nome (Opcional)</label>
+                <input type="text" id="nome" name="nome" placeholder="Como quer ser chamado?" 
+                       class="bg-gray-900 text-white rounded-lg p-3 border-2 border-gray-700 neon-border-cyan transition-colors placeholder-gray-500">
             </div>
+
+            <!-- Campo Música -->
+            <div class="flex flex-col">
+                <label for="musica" class="text-sm text-gray-300 mb-2 uppercase tracking-wider font-semibold">Sua Sugestão <span class="text-pink-500">*</span></label>
+                <textarea id="musica" name="musica" rows="3" required placeholder="Ex: A-ha - Take On Me, ou cole um link do YouTube..." 
+                          class="bg-gray-900 text-white rounded-lg p-3 border-2 border-gray-700 neon-border-cyan transition-colors placeholder-gray-500 resize-none"></textarea>
+            </div>
+
+            <!-- Botão Enviar -->
+            <button type="submit" id="submitBtn" class="w-full font-retro text-xl py-4 rounded-lg neon-button uppercase tracking-widest mt-4">
+                Enviar para o DJ
+            </button>
+        </form>
+
+        <!-- Mensagem de Sucesso (Oculta por padrão) -->
+        <div id="successMessage" class="hidden mt-6 text-center bg-green-900 bg-opacity-30 border border-green-500 rounded-lg p-6">
+            <svg class="w-12 h-12 text-green-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h4 class="text-2xl font-retro text-green-400 mb-2">Sucesso!</h4>
+            <p class="text-gray-200">Sua música foi adicionada à nossa vitrola virtual. Prepare-se para dançar!</p>
+            <button id="novaSugestaoBtn" class="mt-4 text-sm text-pink-400 hover:text-pink-300 underline uppercase tracking-wider">
+                Fazer outra sugestão
+            </button>
         </div>
 
-        <!-- Sucesso -->
-        <div id="success-container" class="hidden glass rounded-3xl p-8 text-center border border-emerald-500/30">
-            <div class="bg-emerald-500 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
-                <i data-lucide="check" class="w-12 h-12 text-white"></i>
-            </div>
-            <h2 class="text-3xl font-bold text-emerald-400 mb-2">Pedido Enviado!</h2>
-            <div class="bg-white text-slate-900 rounded-3xl p-8 shadow-2xl my-6">
-                <p class="text-[10px] uppercase font-black text-slate-400 mb-2">Seu Ingresso</p>
-                <p id="success-ticket" class="text-6xl font-black text-indigo-600 tracking-tighter">#---</p>
-            </div>
-            <button onclick="location.reload()" class="text-slate-400 underline font-bold">Voltar</button>
-        </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="mt-16 mb-8 text-center text-gray-500 text-sm relative z-10">
+        <p class="font-retro tracking-widest mb-2">GOOD TIMES © 2026</p>
+        <p>A melhor energia, as melhores memórias.</p>
+    </footer>
+
+    <!-- Script de Interação -->
     <script>
-        lucide.createIcons();
-        const fileInput = document.getElementById('comprovante');
-        const fileLabel = document.getElementById('file-label');
-        const submitBtn = document.getElementById('submit-btn');
-        const uploadIcon = document.getElementById('upload-icon');
+        // COLOQUE O LINK DO SEU WEB APP AQUI DENTRO DAS ASPAS:
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzrVHiOhpTfkKW_q7PB89SjRUDWRNNG5w6yVqPF1oghSp5ExXFpHuiNlOboDJCiikeI/exec';
 
-        function copyPix() {
-            const temp = document.createElement('input');
-            temp.value = CHAVE_PIX; document.body.appendChild(temp);
-            temp.select(); document.execCommand('copy'); document.body.removeChild(temp);
-        }
+        document.getElementById('playlistForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que a página recarregue
+            
+            const btn = document.getElementById('submitBtn');
+            const form = document.getElementById('playlistForm');
+            const successMsg = document.getElementById('successMessage');
+            
+            const nomeInput = document.getElementById('nome').value;
+            const musicaInput = document.getElementById('musica').value;
 
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                fileLabel.innerText = e.target.files[0].name;
-                fileLabel.classList.replace('text-slate-500', 'text-indigo-400');
-                uploadIcon.classList.replace('text-slate-500', 'text-indigo-400');
-                submitBtn.disabled = false;
-            }
-        });
+            // Muda o estado do botão para "Enviando..."
+            btn.innerHTML = 'Enviando... <span class="animate-pulse">♪</span>';
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            btn.disabled = true;
 
-        // FUNÇÃO DO CONTADOR
-        async function updateStatus() {
-            try {
-                // Usamos fetch com 'action=status' para o n8n saber que é apenas consulta
-                const response = await fetch(`${API_WEBHOOK_URL}?action=status&t=${Date.now()}`);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
+            // Cria os dados para enviar no formato que o Google Apps Script entende
+            const formData = new FormData();
+            formData.append('nome', nomeInput);
+            formData.append('musica', musicaInput);
+
+            // Envia os dados para a planilha
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors' // Necessário para evitar bloqueio de segurança do Google
+            })
+            .then(() => {
+                // Esconde o formulário
+                form.classList.add('hidden');
                 
-                if (data.remaining !== undefined) {
-                    const rem = Math.max(0, parseInt(data.remaining));
-                    document.getElementById('remaining-count').innerText = rem;
-                    document.getElementById('progress-bar').style.width = `${(rem / TOTAL_TICKETS) * 100}%`;
-                }
-            } catch (err) {
-                console.log("A aguardar Webhook do n8n...");
-            }
-        }
-
-        document.getElementById('purchase-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            submitBtn.disabled = true;
-            document.getElementById('btn-loader').classList.remove('hidden');
-            document.getElementById('btn-text').innerText = "Processando...";
-
-            try {
-                const formData = new FormData();
-                formData.append('action', 'buy');
-                formData.append('nome', document.getElementById('nome').value);
-                formData.append('whatsapp', document.getElementById('whatsapp').value);
-                formData.append('email', document.getElementById('email').value);
-                formData.append('comprovante', fileInput.files[0]);
-
-                const response = await fetch(API_WEBHOOK_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                if (data.success) {
-                    document.getElementById('form-container').classList.add('hidden');
-                    document.getElementById('success-container').classList.remove('hidden');
-                    document.getElementById('success-ticket').innerText = '#' + String(data.ticketNumber).padStart(3, '0');
-                } else {
-                    alert("Erro: " + data.error);
-                }
-            } catch (err) {
-                alert("Erro de conexão com o n8n. Verifique se clicou em 'Listen for test event'.");
-            } finally {
-                submitBtn.disabled = false;
-                document.getElementById('btn-loader').classList.add('hidden');
-                document.getElementById('btn-text').innerText = "Finalizar Ingresso";
-            }
+                // Mostra a mensagem de sucesso
+                successMsg.classList.remove('hidden');
+                
+                // Restaura o botão
+                btn.innerHTML = 'Enviar para o DJ';
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btn.disabled = false;
+                
+                // Limpa os campos
+                form.reset();
+            })
+            .catch(error => {
+                console.error('Erro ao enviar:', error);
+                alert('Ops! Houve um problema ao enviar a música. Tente novamente.');
+                
+                // Restaura o botão em caso de erro
+                btn.innerHTML = 'Enviar para o DJ';
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                btn.disabled = false;
+            });
         });
 
-        // Inicia o contador
-        updateStatus();
-        // Atualiza a cada 30 segundos
-        setInterval(updateStatus, 30000);
+        // Botão para fazer uma nova sugestão
+        document.getElementById('novaSugestaoBtn').addEventListener('click', function() {
+            document.getElementById('successMessage').classList.add('hidden');
+            document.getElementById('playlistForm').classList.remove('hidden');
+        });
     </script>
 </body>
 </html>
